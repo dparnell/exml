@@ -13,9 +13,11 @@ static XML_Memory_Handling_Suite ms =
 // structure used as a private data by expat parser
 typedef struct
 {
-    ErlNifEnv *env;
-    ERL_NIF_TERM result;
-    ERL_NIF_TERM xmlns;
+  ErlNifEnv *env;
+  unsigned char has_pid;
+  ERL_NIF_TERM result;
+  ERL_NIF_TERM xmlns;
+  ErlNifPid pid;
 } expat_parser;
 
 // functions 'exported' by exml_event.c module
@@ -25,6 +27,7 @@ static ERL_NIF_TERM free_parser(ErlNifEnv *env, int argc, const ERL_NIF_TERM arg
 static ERL_NIF_TERM parse(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[]);
 
 // pre-allocated Erlang atoms used commonly within the driver
+static ERL_NIF_TERM XML_DOCUMENT_END;
 static ERL_NIF_TERM XML_ELEMENT_START;
 static ERL_NIF_TERM XML_ELEMENT_END;
 static ERL_NIF_TERM XML_CDATA;

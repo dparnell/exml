@@ -55,3 +55,27 @@ xmlns_declaration_test() ->
                                             " xmlns='naked-ns'
                                             >">>)),
     ?assertEqual(ok, exml_event:free_parser(Parser)).
+
+callback_handler(MainPid, State) ->
+    receive
+        xml_document_end ->
+            MainPid ! State;
+        Event -> NewState = lists:append(State, [Event]),
+                 callback_handler(MainPid, NewState)
+    after 2000 ->
+            exit("handler timed out")
+    end.
+
+callback_mode_test() ->
+    Pid = spawn(?MODULE, callback_handler, [self(), []]),
+    {ok, Parser} = exml_event:new_parser(Pid),
+    exml_event:parse_final(Parser, <<"<test>some_cdata stuff<a></a></test>">>),
+    receive
+        Result -> ?assertEqual([{xml_element_start, <<"test">>, [], []},
+                                {xml_cdata, <<"some_cdata stuff">>},
+                                {xml_element_start, <<"a">>, [], []},
+                                {xml_element_end, <<"a">>},
+                                {xml_element_end, <<"test">>}], Result)
+    after 2000 ->
+            exit("parser timed out")
+    end.

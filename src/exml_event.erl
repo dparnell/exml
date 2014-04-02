@@ -9,7 +9,7 @@
 -include("exml_event.hrl").
 
 -export([load/0]).
--export([new_parser/0, reset_parser/1, free_parser/1, parse/2, parse_final/2]).
+-export([new_parser/0, new_parser/1, reset_parser/1, free_parser/1, parse/2, parse_final/2]).
 
 -on_load(load/0).
 
@@ -27,6 +27,10 @@ load() ->
 
 -spec new_parser() -> term().
 new_parser() ->
+    throw({?MODULE, nif_not_loaded}).
+
+-spec new_parser(pid()) -> term().
+new_parser(_Pid) ->
     throw({?MODULE, nif_not_loaded}).
 
 -spec reset_parser(term()) -> ok.
